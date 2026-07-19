@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% block title %}View Students - Student Management System{% endblock %}
+{% block header_title %}Student Directory{% endblock %}
+
+{% block content %}
+<div class="glass-panel" style="padding: 1.75rem;">
+    <!-- Toolbar with Search and Add buttons -->
+    <div class="toolbar">
+        <form method="GET" action="{{ url_for('routes.view_students') }}" class="search-box">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <input type="text" name="search" placeholder="Search by name, email, phone..." value="{{ search_query or '' }}">
+        </form>
+        
+        <div style="display: flex; gap: 0.5rem; align-items: center;">
+            {% if search_query %}
+                <a href="{{ url_for('routes.view_students') }}" class="btn btn-secondary btn-sm">Clear Search</a>
+            {% endif %}
+            <a href="{{ url_for('routes.add_student') }}" class="btn btn-primary btn-sm" style="display: inline-flex; align-items: center; gap: 0.25rem;">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width: 16px; height: 16px;">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+                Add Student
+            </a>
+        </div>
+    </div>
+
+    {% if students %}
+    <div class="table-responsive">
+        <table class="custom-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Full Name</th>
+                    <th>Email Address</th>
+                    <th>Phone</th>
+                    <th>Department</th>
+                    <th>Semester</th>
+                    <th>Address</th>
+                    <th>Added Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for student in students %}
+                <tr>
+                    <td><strong>#{{ student.id }}</strong></td>
+                    <td style="font-weight: 500;">{{ student.name }}</td>
+                    <td>{{ student.email }}</td>
+                    <td>{{ student.phone }}</td>
+                    <td>{{ student.department }}</td>
+                    <td><span class="table-badge badge-info">{{ student.semester }}</span></td>
+                    <td style="max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{{ student.address }}">
+                        {{ student.address or 'N/A' }}
+                    </td>
+                    <td>{{ student.created_at.strftime('%Y-%m-%d') if student.created_at else 'N/A' }}</td>
+                    <td>
+                        <div class="action-btns">
+                            <a href="{{ url_for('routes.edit_student', student_id=student.id) }}" class="btn btn-secondary btn-sm" style="padding: 0.25rem 0.5rem;" title="Edit Student">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width: 14px; height: 14px;">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                </svg>
+                            </a>
+                            <button type="button" class="btn btn-danger btn-sm delete-student-trigger" data-id="{{ student.id }}" data-name="{{ student.name }}" style="padding: 0.25rem 0.5rem;" title="Delete Student">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width: 14px; height: 14px;">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                            </button>
+                            <!-- Hidden form for deleting -->
+                            <form id="delete-form-{{ student.id }}" action="{{ url_for('routes.delete_student', student_id=student.id) }}" method="POST" style="display: none;"></form>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg>
+        {% if search_query %}
+            <p>No student records matched "{{ search_query }}".</p>
+            <a href="{{ url_for('routes.view_students') }}" class="btn btn-secondary">Clear Search</a>
+        {% else %}
+            <p>No student records found in the database.</p>
+            <a href="{{ url_for('routes.add_student') }}" class="btn btn-primary">Add Student</a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+<!-- Reusable Custom Delete Confirmation Modal -->
+<div class="modal-overlay" id="delete-confirm-modal">
+    <div class="modal-content glass-panel">
+        <div class="modal-header">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+            <h3 class="modal-title">Delete Student Record</h3>
+        </div>
+        <div class="modal-body">
+            Are you sure you want to delete the record for <strong id="delete-student-name-placeholder" style="color: #fff;"></strong>? This action is permanent and cannot be undone.
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" id="cancel-delete-btn">Cancel</button>
+            <button type="button" class="btn btn-danger" id="confirm-delete-btn">Delete Record</button>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Profile - Student Management System{% endblock %}
+{% block header_title %}Admin Profile{% endblock %}
+
+{% block content %}
+<div class="profile-grid">
+    <!-- Left Section: Avatar & Action Quicklinks -->
+    <div class="profile-card-left glass-panel">
+        <div class="profile-pic">
+            {{ g.user.email[0].upper() }}
+        </div>
+        <h3 style="font-family: var(--font-display); font-size: 1.25rem; font-weight: 600; margin-bottom: 0.25rem;">
+            Administrator
+        </h3>
+        <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.5rem;">
+            {{ g.user.email }}
+        </p>
+        <hr style="border: 0; height: 1px; background: var(--border-color); margin-bottom: 1.5rem;">
+        <a href="{{ url_for('auth.logout') }}" class="btn btn-danger" style="width: 100%;">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width: 18px; height: 18px;">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            </svg>
+            Sign Out
+        </a>
+    </div>
+
+    <!-- Right Section: Profile Details -->
+    <div class="profile-card-right glass-panel">
+        <h2 style="font-family: var(--font-display); font-size: 1.5rem; font-weight: 600; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem;">
+            Account Information
+        </h2>
+        
+        <ul class="info-list">
+            <li class="info-item">
+                <span class="info-label">Email Address</span>
+                <span class="info-value">{{ g.user.email }}</span>
+            </li>
+            
+            <li class="info-item">
+                <span class="info-label">Account Role</span>
+                <span class="info-value">System Administrator (Full CRUD Access)</span>
+            </li>
+            
+            <li class="info-item">
+                <span class="info-label">Registered Date</span>
+                <span class="info-value">{{ g.user.created_at.strftime('%B %d, %Y at %I:%M %p') if g.user.created_at else 'N/A' }}</span>
+            </li>
+            
+            <li class="info-item">
+                <span class="info-label">Database Status</span>
+                <span class="info-value" style="color: var(--success); display: inline-flex; align-items: center; gap: 0.5rem;">
+                    <span style="display: inline-block; width: 8px; height: 8px; background-color: var(--success); border-radius: 50%;"></span>
+                    SQLite DB Connected
+                </span>
+            </li>
+        </ul>
+    </div>
+</div>
+{% endblock %}

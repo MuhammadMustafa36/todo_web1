@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Student - Student Management System{% endblock %}
+{% block header_title %}Edit Student Details{% endblock %}
+
+{% block content %}
+<div class="form-card glass-panel">
+    <h2 class="form-title">Update Information for #{{ student.id }}</h2>
+    
+    <form method="POST" action="{{ url_for('routes.edit_student', student_id=student.id) }}" novalidate>
+        {{ form.hidden_tag() }}
+        
+        <div class="form-grid">
+            <!-- Full Name -->
+            <div class="form-group">
+                <label for="name">{{ form.name.label }} <span style="color: var(--danger);">*</span></label>
+                {{ form.name(class="form-control", placeholder="e.g. John Doe") }}
+                {% if form.name.errors %}
+                    {% for error in form.name.errors %}
+                        <div class="form-error">{{ error }}</div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+            
+            <!-- Email -->
+            <div class="form-group">
+                <label for="email">{{ form.email.label }} <span style="color: var(--danger);">*</span></label>
+                {{ form.email(class="form-control", placeholder="e.g. john@example.com") }}
+                {% if form.email.errors %}
+                    {% for error in form.email.errors %}
+                        <div class="form-error">{{ error }}</div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+            
+            <!-- Phone -->
+            <div class="form-group">
+                <label for="phone">{{ form.phone.label }} <span style="color: var(--danger);">*</span></label>
+                {{ form.phone(class="form-control", placeholder="e.g. +1234567890") }}
+                {% if form.phone.errors %}
+                    {% for error in form.phone.errors %}
+                        <div class="form-error">{{ error }}</div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+            
+            <!-- Department -->
+            <div class="form-group">
+                <label for="department">{{ form.department.label }} <span style="color: var(--danger);">*</span></label>
+                {{ form.department(class="form-control") }}
+                {% if form.department.errors %}
+                    {% for error in form.department.errors %}
+                        <div class="form-error">{{ error }}</div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+            
+            <!-- Semester -->
+            <div class="form-group">
+                <label for="semester">{{ form.semester.label }} <span style="color: var(--danger);">*</span></label>
+                {{ form.semester(class="form-control") }}
+                {% if form.semester.errors %}
+                    {% for error in form.semester.errors %}
+                        <div class="form-error">{{ error }}</div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+            
+            <!-- Address (Full Width) -->
+            <div class="form-group full-width">
+                <label for="address">{{ form.address.label }}</label>
+                {{ form.address(class="form-control", placeholder="Enter student's residential address...") }}
+                {% if form.address.errors %}
+                    {% for error in form.address.errors %}
+                        <div class="form-error">{{ error }}</div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="form-actions">
+            <a href="{{ url_for('routes.view_students') }}" class="btn btn-secondary">Cancel</a>
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

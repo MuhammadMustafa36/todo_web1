@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Student Management System{% endblock %}
+{% block header_title %}Dashboard{% endblock %}
+
+{% block content %}
+<!-- Welcome Banner -->
+<div style="margin-bottom: 2rem;">
+    <h2 style="font-family: var(--font-display); font-size: 1.8rem; font-weight: 700; margin-bottom: 0.25rem;">
+        Welcome Back, {{ g.user.email }}!
+    </h2>
+    <p style="color: var(--text-muted); font-size: 0.95rem;">
+        Here is a quick overview of the student administration system.
+    </p>
+</div>
+
+<!-- Stats widgets -->
+<div class="dashboard-grid">
+    <!-- Total Students Widget -->
+    <div class="widget-card glass-panel">
+        <div class="widget-info">
+            <h3>Total Students</h3>
+            <div class="widget-val">{{ total_students }}</div>
+        </div>
+        <div class="widget-icon indigo">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width: 28px; height: 28px;">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+        </div>
+    </div>
+
+    <!-- Quick Action Widget -->
+    <div class="widget-card glass-panel" style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(30, 41, 59, 0.7) 100%);">
+        <div class="widget-info">
+            <h3>Quick Actions</h3>
+            <div style="margin-top: 0.75rem; display: flex; gap: 0.5rem;">
+                <a href="{{ url_for('routes.add_student') }}" class="btn btn-primary btn-sm">Add Student</a>
+                <a href="{{ url_for('routes.view_students') }}" class="btn btn-secondary btn-sm">View All</a>
+            </div>
+        </div>
+        <div class="widget-icon emerald">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width: 28px; height: 28px;">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Students Table -->
+<div class="glass-panel" style="padding: 1.75rem; margin-bottom: 2rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+        <h3 style="font-family: var(--font-display); font-size: 1.25rem; font-weight: 600;">
+            Recently Added Students
+        </h3>
+        <a href="{{ url_for('routes.view_students') }}" style="color: var(--primary); text-decoration: none; font-size: 0.9rem; font-weight: 500; display: inline-flex; align-items: center; gap: 0.25rem;">
+            See all students
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width: 16px; height: 16px;">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+        </a>
+    </div>
+
+    {% if recent_students %}
+    <div class="table-responsive">
+        <table class="custom-table">
+            <thead>
+                <tr>
+                    <th>Student ID</th>
+                    <th>Full Name</th>
+                    <th>Email</th>
+                    <th>Department</th>
+                    <th>Semester</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for student in recent_students %}
+                <tr>
+                    <td><strong>#{{ student.id }}</strong></td>
+                    <td>{{ student.name }}</td>
+                    <td>{{ student.email }}</td>
+                    <td>{{ student.department }}</td>
+                    <td><span class="table-badge badge-info">{{ student.semester }}</span></td>
+                    <td>
+                        <div class="action-btns">
+                            <a href="{{ url_for('routes.edit_student', student_id=student.id) }}" class="btn btn-secondary btn-sm" style="padding: 0.25rem 0.5rem;" title="Edit Student">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width: 14px; height: 14px;">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                </svg>
+                            </a>
+                            <button type="button" class="btn btn-danger btn-sm delete-student-trigger" data-id="{{ student.id }}" data-name="{{ student.name }}" style="padding: 0.25rem 0.5rem;" title="Delete Student">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width: 14px; height: 14px;">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                            </button>
+                            <!-- Hidden form for deleting -->
+                            <form id="delete-form-{{ student.id }}" action="{{ url_for('routes.delete_student', student_id=student.id) }}" method="POST" style="display: none;"></form>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+        </svg>
+        <p>No student records found in the system.</p>
+        <a href="{{ url_for('routes.add_student') }}" class="btn btn-primary">Add First Student</a>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Reusable Custom Delete Confirmation Modal -->
+<div class="modal-overlay" id="delete-confirm-modal">
+    <div class="modal-content glass-panel">
+        <div class="modal-header">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+            <h3 class="modal-title">Delete Student Record</h3>
+        </div>
+        <div class="modal-body">
+            Are you sure you want to delete the record for <strong id="delete-student-name-placeholder" style="color: #fff;"></strong>? This action is permanent and cannot be undone.
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" id="cancel-delete-btn">Cancel</button>
+            <button type="button" class="btn btn-danger" id="confirm-delete-btn">Delete Record</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
