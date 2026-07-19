@@ -10,39 +10,65 @@ def create_app(config_class=Config):
     app = Flask(__name__)
     app.config.from_object(config_class)
 
-    # TEMPORARY DEBUG: confirms whether the env var is actually reaching
-    # the app, without leaking the password. Remove once connection is
-    # confirmed working.
+    # -------------------------------
+    # DEBUG: Check database URL
+    # -------------------------------
     db_uri = app.config.get("SQLALCHEMY_DATABASE_URI", "")
-    print("Database URL found:", bool(db_uri))
-    if db_uri:
-        print("Database URL prefix:", db_uri[:40])
 
-    # Initialize extensions
+    print("=" * 60, flush=True)
+    print("Application Starting...", flush=True)
+    print("Database URL Found:", bool(db_uri), flush=True)
+
+    if db_uri:
+        # Only print the first part of the URL (safe)
+        print("Database URL Prefix:", db_uri[:40], flush=True)
+
+    print("=" * 60, flush=True)
+
+    # -------------------------------
+    # Initialize Database
+    # -------------------------------
     db.init_app(app)
 
-    # Register blueprints
+    # -------------------------------
+    # Register Blueprints
+    # -------------------------------
     app.register_blueprint(auth_bp)
     app.register_blueprint(routes_bp)
 
-    # Create tables if they don't exist.
-    # Wrapped in try/except so a transient DB issue doesn't crash
-    # the whole serverless function on import (which caused every
-    # route, including /favicon.ico, to 500). Full traceback is printed
-    # so Vercel logs show the real underlying exception instead of a
-    # truncated message.
+    # -------------------------------
+    # Database Initialization
+    # -------------------------------
     with app.app_context():
         try:
+            print("Creating database tables...", flush=True)
             db.create_all()
-        except Exception:
+            print("Database initialized successfully.", flush=True)
+
+        except Exception as e:
+            print("=" * 60, flush=True)
+            print("DATABASE INITIALIZATION FAILED", flush=True)
+            print("=" * 60, flush=True)
+
             traceback.print_exc()
+
+            print("Exception:", str(e), flush=True)
+
+            # Re-raise so Vercel logs show the full error
+            raise
 
     return app
 
 
-# Instantiate the application at the module level for WSGI / Vercel
+# Create Flask App
 app = create_app()
 
-if __name__ == '__main__':
-    print("Starting Student Management System server...")
-    app.run(host='127.0.0.1', port=5000, debug=True)
+
+if __name__ == "__main__":
+    print("Starting Student Management System...", flush=True)
+
+    app.run(
+        host="127.0.0.1",
+        port=5000,
+        debug=True
+    )
